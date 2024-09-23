@@ -1,19 +1,27 @@
+## Watch dog module to be used for docker
 import streamlit as st
 from langchain_core.messages import AIMessage, HumanMessage
-## Watch dog module to be used for docker
-
+#beautiful soup for extracting info from website
+from langchain_community.document_loaders import WebBaseLoader
 
 # RAG Class - chunking, embedding models
 class ResponceLogic:
     def __init__(self) -> None:
-        pass
-    
-    pass
+        self.web_loader = WebBaseLoader
+
+    def splitWebIntoChunks(self, url):
+        #get text in document format
+        loader = self.web_loader(url)
+        documents = loader.load()
+        return documents
+
 
 
 #Application settings
 class AppUI:
     def __init__(self) -> None:
+        self.responce_logic = ResponceLogic
+
         #app config
         st.set_page_config(page_title="Chat with Website", page_icon="<>")
         st.title("Chat with website")
@@ -37,6 +45,10 @@ class AppUI:
         if self.website_url is None or self.website_url == "":
             st.info("Please enter a valid URL")
         else:
+            documents = self.responce_logic.splitWebIntoChunks(self.website_url)
+            with st.sidebar:
+                st.write(documents)
+
             #User query
             user_input = st.chat_input("Type your message here")
             if user_input is not None and user_input != "":
